@@ -1,5 +1,6 @@
 package org.datavaultplatform.worker.rabbit;
 
+import java.time.Duration;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.datavaultplatform.common.docker.DockerImage;
@@ -31,7 +32,7 @@ public abstract class BaseRabbitTCTest {
 
   @Container
   private static final RabbitMQContainer RABBIT = new RabbitMQContainer(DockerImage.RABBIT_IMAGE_NAME)
-      .withExposedPorts(5672, 15672);
+      .withExposedPorts(5672, 15672).withStartupTimeout(Duration.ofSeconds(120));
 
   @DynamicPropertySource
   static void setupProperties(DynamicPropertyRegistry registry) {

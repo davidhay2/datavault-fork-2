@@ -49,7 +49,7 @@ public class ActuatorTest {
   @Test
   @SneakyThrows
   void testActuatorPublicAccess() {
-    Stream.of("/actuator/info", "/actuator/health", "/actuator/metrics", "/actuator/memoryinfo").forEach(this::checkPublic);
+    Stream.of("/actuator/info", "/actuator/health", "/actuator/metrics", "/actuator/customtime", "/actuator/memoryinfo").forEach(this::checkPublic);
   }
 
   @Test

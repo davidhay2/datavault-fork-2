@@ -3,13 +3,11 @@ package org.datavaultplatform.webapp.authentication.shib;
 import org.datavaultplatform.common.model.User;
 import org.datavaultplatform.common.request.ValidateUser;
 import org.datavaultplatform.common.services.LDAPService;
-import org.datavaultplatform.webapp.authentication.AuthenticationSuccess;
 import org.datavaultplatform.webapp.authentication.authorization.AuthorizationUtils;
 import org.datavaultplatform.webapp.authentication.authorization.GrantedAuthorityService;
 import org.datavaultplatform.webapp.services.RestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -40,9 +38,6 @@ public class ShibAuthenticationProvider implements AuthenticationProvider {
     private final GrantedAuthorityService grantedAuthorityService;
 
     private final boolean ldapEnabled;
-
-    @Autowired
-    private AuthenticationSuccess authenticationSuccess;
 
     public ShibAuthenticationProvider(RestService restService, LDAPService ldapService, boolean ldapEnabled, GrantedAuthorityService grantedAuthorityService) {
         this.restService = restService;

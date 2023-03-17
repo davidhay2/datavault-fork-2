@@ -11,8 +11,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.servlet.Filter;
 import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.datavaultplatform.webapp.authentication.shib.ShibAuthenticationFilter;
 import org.datavaultplatform.webapp.authentication.shib.ShibAuthenticationProvider;
 import org.datavaultplatform.webapp.test.ProfileShib;
@@ -24,12 +26,14 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
@@ -43,14 +47,11 @@ import org.springframework.web.bind.annotation.RestController;
 @ProfileShib
 public class ProfileShibTest {
 
-    @Autowired
-    CountDownLatch latch;
+  @Autowired
+  CountDownLatch latch;
 
-    @Autowired
-    ShibAuthenticationProvider shibAuthenticationProvider;
-
-    @Autowired
-    ShibAuthenticationFilter shibFilter;
+  @Autowired
+  ShibAuthenticationProvider shibAuthenticationProvider;
 
     @Autowired
     FilterChainProxy proxy;
@@ -75,18 +76,29 @@ public class ProfileShibTest {
   }
 
   /**
-     * Check that the ShibAuthenticationFilter is associated with the ShibAuthenticationProvider
-     */
-    @Test
-    @SneakyThrows
-    void testShibAuthFilterIsAssociatedWithShibAuthProvider() {
-        Field f = AbstractPreAuthenticatedProcessingFilter.class.getDeclaredField("authenticationManager");
-        f.setAccessible(true);
-        ProviderManager providerManager = (ProviderManager) f.get(shibFilter);
-        List<AuthenticationProvider> providers = providerManager.getProviders();
-        assertThat(providers.size()).isOne();
-        assertThat(providers.get(0)).isEqualTo(this.shibAuthenticationProvider);
-    }
+   * Check that the ShibAuthenticationFilter is associated with the ShibAuthenticationProvider
+   */
+  @Test
+  @SneakyThrows
+  void testShibAuthFilterIsAssociatedWithShibAuthProvider() {
+    List<SecurityFilterChain> filterChains = proxy.getFilterChains();
+    assertEquals(2, filterChains.size());
+    SecurityFilterChain filterChain = filterChains.stream()
+        .filter(f -> f.matches(new MockHttpServletRequest("GET", "/")))
+        .findFirst().get();
+    System.out.printf("%s%n", filterChains);
+    Filter shibFilter  = filterChain.getFilters().stream()
+        .filter(f -> f.getClass().equals(ShibAuthenticationFilter.class))
+        .findFirst().get();
+    Field f = AbstractPreAuthenticatedProcessingFilter.class.getDeclaredField("authenticationManager");
+    f.setAccessible(true);
+    ProviderManager providerManager = (ProviderManager) f.get(shibFilter);
+    List<AuthenticationProvider> providers = providerManager.getProviders();
+
+    AuthenticationProvider provider = providers.stream().filter(p -> p.supports(
+        PreAuthenticatedAuthenticationToken.class)).findFirst().get();
+    assertThat(provider).isEqualTo(this.shibAuthenticationProvider);
+  }
 
     @Test
     void testShibFilterIsIncludedInSecurityFilterChainAtCorrectPosition() {

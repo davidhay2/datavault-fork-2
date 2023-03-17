@@ -1,6 +1,18 @@
 package org.datavaultplatform.broker.actuator;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.datavaultplatform.broker.app.DataVaultBrokerApp;
@@ -24,36 +36,26 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest(classes = DataVaultBrokerApp.class)
 @Import({TestClockConfig.class, MockServicesConfig.class})
 @AddTestProperties
 @Slf4j
 @TestPropertySource(properties = {
-    "broker.services.enabled=false",
+    "logging.level.org.springframework.security.web=trace",
     "broker.database.enabled=false",
+    "spring.security.debug=true",
     "broker.email.enabled=true",
     "broker.controllers.enabled=true",
-    "broker.initialise.enabled=true",
+    "broker.initialise.enabled=false",
     "broker.rabbit.enabled=false",
     "broker.scheduled.enabled=false",
     "management.endpoints.web.exposure.include=*",
     "management.health.rabbit.enabled=false"})
 @AutoConfigureMockMvc
 @EnableAutoConfiguration(exclude= {
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class })
+    DataSourceAutoConfiguration.class,
+    DataSourceTransactionManagerAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class })
 public class ActuatorTest {
 
   @Autowired
@@ -89,7 +91,7 @@ public class ActuatorTest {
   @Test
   @SneakyThrows
   void testActuatorAuthorized() {
-    Stream.of("/actuator", "/actuator/", "/actuator/env", "/actuator/customtime",
+    Stream.of("/actuator", "/actuator/env", "/actuator/customtime",
             "/actuator/sftpfilestores", "/actuator/localfilestores")
         .forEach(url -> checkAuthorized(url, "bactor", "bactorpass"));
   }

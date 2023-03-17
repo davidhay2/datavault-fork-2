@@ -54,8 +54,13 @@ public class DataVaultWebApp implements CommandLineRunner {
   Environment env;
 
   public DataVaultWebApp(FreeMarkerConfigurer freeMarkerConfigurer) {
+    /*
+    As of 17thMarch2023 - FreeMarker does not use jakarta.* namespace
+    therefore is NOT compatible with SpringBoot 3
+
     freeMarkerConfigurer.getTaglibFactory()
         .setClasspathTlds(singletonList("/META-INF/security.tld"));
+     */
   }
 
   @SneakyThrows

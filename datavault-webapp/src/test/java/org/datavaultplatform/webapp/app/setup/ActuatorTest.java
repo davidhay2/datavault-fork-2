@@ -71,7 +71,7 @@ public class ActuatorTest {
         .andExpect(jsonPath("$.git.commit.time").exists())
         .andExpect(jsonPath("$.git.commit.time").value(Matchers.is("2022-03-30T10:25:54Z")))
         .andExpect(jsonPath("$.git.commit.id").value(Matchers.is("a16f01e")))
-        .andExpect(jsonPath("$.build.artifact").value(Matchers.is("datavault-webapp")))
+        .andExpect(jsonPath("$.app.name").value(Matchers.is("datavault-webapp")))
         .andExpect(jsonPath("$.java.vendor").exists())
         .andExpect(jsonPath("$.java.runtime.version").exists())
         .andExpect(jsonPath("$.java.jvm.version").exists());

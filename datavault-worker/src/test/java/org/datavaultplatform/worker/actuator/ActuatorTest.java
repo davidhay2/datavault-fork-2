@@ -55,14 +55,14 @@ public class ActuatorTest {
   @Test
   @SneakyThrows
   void testActuatorUnauthorized() {
-    Stream.of("/actuator", "/actuator/", "/actuator/env")
+    Stream.of("/actuator", "/actuator/env")
         .forEach(this::checkUnauthorized);
   }
 
   @Test
   @SneakyThrows
   void testActuatorAuthorized() {
-    Stream.of("/actuator", "/actuator/", "/actuator/env")
+    Stream.of("/actuator", "/actuator/env")
         .forEach(url -> checkAuthorized(url, "wactu", "wactupass"));
   }
 

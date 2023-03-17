@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,11 +57,10 @@ public class SecurityActuatorConfig {
 
     http.authenticationProvider(authenticationProvider);
 
-    http.antMatcher("/actuator/**")
+    http.securityMatcher("/actuator/**")
         .authorizeHttpRequests()
-        .antMatchers("/actuator/health", "/actuator/info",
-            "/actuator/metrics", "/actuator/metrics/*",
-            "/actuator/memoryinfo").permitAll()        .anyRequest().authenticated();
+        .requestMatchers("/actuator/health", "/actuator/info", "/actuator/metrics", "/actuator/metrics/*", "/actuator/memoryinfo").permitAll()
+        .anyRequest().fullyAuthenticated();
 
     return http.build();
   }

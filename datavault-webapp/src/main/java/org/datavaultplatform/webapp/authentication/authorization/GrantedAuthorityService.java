@@ -36,9 +36,8 @@ public class GrantedAuthorityService {
         grantedAuths.addAll(scopedAuthorities);
 
         log.info("Existing user {}", name);
-        boolean isAdmin;
         try {
-            isAdmin = restService.isAdmin(new ValidateUser(name, null));
+            boolean isAdmin = restService.isAdmin(new ValidateUser(name, null));
             if (isAdmin) {
                 grantedAuths.add(AuthorizationUtils.ROLE_IS_ADMIN);
             }
